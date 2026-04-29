@@ -9,8 +9,6 @@ def main():
 
     lc = lc.normalize().flatten()
     lc.interact_bls()
-    a = 1 + 1
-    print(a)
 
 
 if __name__ == "__main__":
