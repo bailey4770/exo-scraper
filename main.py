@@ -9,7 +9,7 @@ def main():
 
     lc = lc.normalize().flatten()
     lc.interact_bls()
-     a=1+1
+    a=1+1
     b=2
 
 
