@@ -86,8 +86,8 @@ def _get_transit_duration(df: pd.DataFrame) -> pd.DataFrame:
             )
         )
 
-        # assert because we have a real problem if this doesn't hold
-        # also, this is a one time script, not a repeatable pipeline
+        arcsin_input = arcsin_input.where(arcsin_input.between(0, 1))
+        arcsin_input = arcsin_input.dropna()
         assert arcsin_input.between(0, 1).all()
         return arcsin_input
 
@@ -127,24 +127,26 @@ def _get_transit_duration(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
+    NA_SUBSET = [
+        "orbital_period",
+        "star_radius",
+        "semi_major_axis",
+        "radius",
+        "impact_parameter",
+    ]
+
     df: pd.DataFrame = pd.read_csv(DATA_FILE_PATH)
+    # code also works for all planets in dataset, removing those where returned cols have na values
     test_planets = df.loc[df["star_name"].isin(TEST_STARS)]
-    dropped_na = test_planets.dropna(
-        subset=[
-            "orbital_period",
-            "star_radius",
-            "semi_major_axis",
-            "radius",
-            "impact_parameter",
-        ]
-    )
+    dropped_na = test_planets.dropna(subset=NA_SUBSET)
 
     with_orbital_error_cols = _get_orbital_period_cols(dropped_na)
     with_depth_error_cols = _get_depth_cols(with_orbital_error_cols)
     with_transit_error_cols = _get_transit_duration(with_depth_error_cols)
 
-    print(with_transit_error_cols[RETURN_COLS])
-    with_transit_error_cols.to_csv(RESULT_FILE_PATH)
+    res = with_transit_error_cols.dropna(subset=NA_SUBSET)
+    print(res[RETURN_COLS])
+    res.to_csv(RESULT_FILE_PATH)
 
 
 if __name__ == "__main__":
