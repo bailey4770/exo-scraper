@@ -4,7 +4,15 @@ import numpy as np
 DATA_FILE_PATH = "./data/exoplanet.eu_catalog_29-04-26_12_09_18.csv"
 RESULT_FILE_PATH = "./data/golden_dataset.csv"
 
-TEST_STARS: list[str] = ["Kepler-69"]
+TEST_STARS: list[str] = [
+    "Kepler-69",
+    "Kepler-7",
+    "Kepler-6",
+    "Kepler-17",
+    "Kepler-5",
+    "Kepler-8",
+    "Kepler-12",
+]
 RETURN_COLS: list[str] = [
     "star_name",
     "name",
@@ -48,11 +56,14 @@ def _get_depth_cols(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _get_transit_duration(df: pd.DataFrame) -> pd.DataFrame:
-    """T = (orbital_period / π) * arcsin(
-        (star_radius / semi_major_axis) * sqrt((1 + (radius / star_radius)² - impact_parameter²)
-    ) (Source: Claude -> Winn (2010))
+    """Compute expected transit duration from stored, exoplanet facts.
 
-    Variables are (source: own desmos analysis):
+    Equation for transit duration (Source: Claude -> Winn (2010)):
+    T = (orbital_period / π) * arcsin(
+        (star_radius / semi_major_axis) * sqrt((1 + (radius / star_radius)² - impact_parameter²)
+    )
+
+    Output is (source: own desmos analysis):
     - increasing in orbital period
     - increasing in star_radius
     - decreasing in semi_major_axis
