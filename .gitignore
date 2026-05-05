@@ -1,5 +1,5 @@
-# custom
-data/golden_dataset.csv
+# generated data files
+data/processed/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
