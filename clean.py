@@ -90,7 +90,7 @@ def transform(df: pd.DataFrame, return_cols: list[str]) -> pd.DataFrame:
 
         Equation for transit duration (Winn, Joshua N. “Transits and Occultations.” arXiv:1001.2010, arXiv, 24 Sept. 2014. arXiv.org, https://doi.org/10.48550/arXiv.1001.2010):
         T = (orbital_period / π) * arcsin(
-            (star_radius / semi_major_axis) * sqrt((1 + (radius / star_radius)² - impact_parameter²)
+            (star_radius / semi_major_axis) * sqrt((1 + (radius / star_radius))² - impact_parameter²)
         )
 
         Output is (source: own desmos analysis):
@@ -116,10 +116,8 @@ def transform(df: pd.DataFrame, return_cols: list[str]) -> pd.DataFrame:
                 )
             )
 
-            arcsin_input = arcsin_input.where(arcsin_input.between(0, 1))
-            arcsin_input = arcsin_input.dropna()
-            assert arcsin_input.between(0, 1).all()
-            return arcsin_input
+            valid_mask = arcsin_input.isna() | arcsin_input.between(0, 1)
+            return arcsin_input.where(valid_mask)
 
         arcsin_input_min = _get_arcsin_input(
             star_radius=(df["star_radius"] - df["star_radius_error_min"]),
@@ -170,7 +168,11 @@ def load(transformed: pd.DataFrame, file_path: str, display: bool = False):
     if display:
         print(transformed)
 
-    transformed.to_csv(file_path)
+    parent_dir = os.path.dirname(file_path)
+    if parent_dir:
+        os.makedirs(parent_dir, exist_ok=True)
+
+    transformed.to_csv(file_path, index=False)
     assert os.path.exists(file_path)
 
 
